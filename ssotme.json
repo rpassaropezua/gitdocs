@@ -1,0 +1,21 @@
+{
+  "ShowHidden": false,
+  "ShowAllFiles": false,
+  "Description": "A project created from the gitdocs GitHub repository.",
+  "Name": "Gitdocs",
+  "ProjectSettings": [
+    {
+      "Name": "base-namespace",
+      "Value": "SSoTme.gitdocs-1"
+    },
+    {
+      "Name": "project-name",
+      "Value": "gitdocs-1"
+    },
+    {
+      "Name": "project-title",
+      "Value": "Gitdocs"
+    }
+  ],
+  "ProjectTranspilers": []
+}
