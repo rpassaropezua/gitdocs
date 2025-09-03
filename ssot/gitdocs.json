@@ -1,21 +1,136 @@
 {
-  "ShowHidden": false,
-  "ShowAllFiles": false,
-  "Description": "A project created from the gitdocs GitHub repository.",
-  "Name": "Gitdocs",
-  "ProjectSettings": [
-    {
-      "Name": "base-namespace",
-      "Value": "SSoTme.gitdocs-1"
-    },
-    {
-      "Name": "project-name",
-      "Value": "gitdocs-1"
-    },
-    {
-      "Name": "project-title",
-      "Value": "Gitdocs"
-    }
-  ],
-  "ProjectTranspilers": []
+  "$schema": "https://example.com/cmcc-schema/v1",
+  "model_name": "Gitdocs",
+  "Description": "System for exporting Git commits and linking to ClickUp tasks",
+  "repositories": {
+    "Description": "Git repositories being tracked",
+    "schema": [
+      {
+        "name": "RepositoryID",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Unique repository identifier"
+      },
+      {
+        "name": "RepositoryName",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Name of the repository"
+      },
+      {
+        "name": "Status",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Current status of the repository"
+      }
+    ],
+    "data": [
+      {
+        "RepositoryID": "R001",
+        "RepositoryName": "Repo1",
+        "Status": "Active"
+      },
+      {
+        "RepositoryID": "R002",
+        "RepositoryName": "Repo2",
+        "Status": "Inactive"
+      }
+    ]
+  },
+  "commits": {
+    "Description": "Commits made in the repositories",
+    "schema": [
+      {
+        "name": "CommitID",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Unique commit identifier"
+      },
+      {
+        "name": "RepositoryID",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "FK to repositories.RepositoryID"
+      },
+      {
+        "name": "CommitDate",
+        "datatype": "datetime",
+        "type": "raw",
+        "Description": "Date of the commit"
+      },
+      {
+        "name": "Message",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Commit message"
+      },
+      {
+        "name": "ClickUpTaskLink",
+        "datatype": "string",
+        "type": "calculated",
+        "formula": "=\"https://app.clickup.com/t/\" & MID({{Message}}, FIND(\"CU-\", {{Message}}), 8)",
+        "Description": "Link to ClickUp task extracted from commit message"
+      }
+    ],
+    "data": [
+      {
+        "CommitID": "C001",
+        "RepositoryID": "R001",
+        "CommitDate": "2023-10-01T12:34:56",
+        "Message": "Fix bug CU-123456",
+        "ClickUpTaskLink": "https://app.clickup.com/t/CU-123456"
+      },
+      {
+        "CommitID": "C002",
+        "RepositoryID": "R001",
+        "CommitDate": "2023-10-02T14:20:00",
+        "Message": "Add feature CU-654321",
+        "ClickUpTaskLink": "https://app.clickup.com/t/CU-654321"
+      }
+    ]
+  },
+  "tasks": {
+    "Description": "ClickUp tasks linked to commits",
+    "schema": [
+      {
+        "name": "TaskID",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Unique task identifier"
+      },
+      {
+        "name": "CommitID",
+        "datatype": "string",
+        "type": "lookup",
+        "formula": "=INDEX(commits!CommitID, MATCH({{TaskID}}, commits!ClickUpTaskLink, 0))",
+        "Description": "FK to commits.CommitID"
+      },
+      {
+        "name": "TaskName",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Name of the ClickUp task"
+      },
+      {
+        "name": "Status",
+        "datatype": "string",
+        "type": "raw",
+        "Description": "Current status of the task"
+      }
+    ],
+    "data": [
+      {
+        "TaskID": "CU-123456",
+        "CommitID": "C001",
+        "TaskName": "Fix bug",
+        "Status": "Completed"
+      },
+      {
+        "TaskID": "CU-654321",
+        "CommitID": "C002",
+        "TaskName": "Add feature",
+        "Status": "In Progress"
+      }
+    ]
+  }
 }
