@@ -1,0 +1,107 @@
+```markdown
+# Technical Specification: Gitdocs
+
+## Overview
+
+**Project Name:** Gitdocs  
+**Description:** Gitdocs is a system designed to export Git commits and establish links to ClickUp tasks. This facilitates tracking and management of development tasks directly associated with specific code changes.
+
+## Data Sources
+
+The Gitdocs project utilizes a Single Source of Truth (SSoT) JSON file to define and manage its data model. The relevant file loaded for this project is `ssot/gitdocs.json`.
+
+## Data Model
+
+### 1. Repositories
+
+**Description:** This section outlines the Git repositories being tracked by the system.
+
+#### Schema
+
+- **RepositoryID**: 
+  - **Type:** String
+  - **Description:** Unique identifier for the repository.
+
+- **RepositoryName**:
+  - **Type:** String
+  - **Description:** Name of the repository.
+
+- **Status**:
+  - **Type:** String
+  - **Description:** Current status of the repository (e.g., Active, Inactive).
+
+#### Sample Data
+
+| RepositoryID | RepositoryName | Status  |
+|--------------|----------------|---------|
+| R001         | Repo1          | Active  |
+| R002         | Repo2          | Inactive|
+
+### 2. Commits
+
+**Description:** Information about commits made in the repositories.
+
+#### Schema
+
+- **CommitID**:
+  - **Type:** String
+  - **Description:** Unique identifier for the commit.
+
+- **RepositoryID**:
+  - **Type:** String
+  - **Description:** Foreign Key (FK) linking to `repositories.RepositoryID`.
+
+- **CommitDate**:
+  - **Type:** DateTime
+  - **Description:** Date and time when the commit was made.
+
+- **Message**:
+  - **Type:** String
+  - **Description:** The commit message.
+
+- **ClickUpTaskLink**:
+  - **Type:** Calculated String
+  - **Formula:** Extracts and constructs a URL linking to the ClickUp task (e.g., `="https://app.clickup.com/t/" & MID({{Message}}, FIND("CU-", {{Message}}), 8)`).
+  - **Description:** Link to the ClickUp task extracted from the commit message.
+
+#### Sample Data
+
+| CommitID | RepositoryID | CommitDate          | Message                | ClickUpTaskLink                  |
+|----------|--------------|---------------------|------------------------|----------------------------------|
+| C001     | R001         | 2023-10-01T12:34:56 | Fix bug CU-123456      | https://app.clickup.com/t/CU-123456 |
+| C002     | R001         | 2023-10-02T14:20:00 | Add feature CU-654321  | https://app.clickup.com/t/CU-654321 |
+
+### 3. Tasks
+
+**Description:** Details of ClickUp tasks that are linked to specific commits.
+
+#### Schema
+
+- **TaskID**:
+  - **Type:** String
+  - **Description:** Unique identifier for the ClickUp task.
+
+- **CommitID**:
+  - **Type:** Lookup String
+  - **Formula:** Matches `TaskID` with `commits.ClickUpTaskLink` to retrieve `CommitID` (e.g., `=INDEX(commits!CommitID, MATCH({{TaskID}}, commits!ClickUpTaskLink, 0))`).
+  - **Description:** Foreign Key (FK) linking to `commits.CommitID`.
+
+- **TaskName**:
+  - **Type:** String
+  - **Description:** Name of the ClickUp task.
+
+- **Status**:
+  - **Type:** String
+  - **Description:** Current status of the task (e.g., Completed, In Progress).
+
+#### Sample Data
+
+| TaskID    | CommitID | TaskName    | Status      |
+|-----------|----------|-------------|-------------|
+| CU-123456 | C001     | Fix bug     | Completed   |
+| CU-654321 | C002     | Add feature | In Progress |
+
+## Conclusion
+
+The Gitdocs system provides a structured way to manage the relationship between Git commits and ClickUp tasks. This specification outlines the data model, schemas, and sample data to facilitate understanding and implementation by developers and non-developers alike.
+```
