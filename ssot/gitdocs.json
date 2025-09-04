@@ -1,7 +1,7 @@
 {
   "$schema": "https://example.com/cmcc-schema/v1",
-  "model_name": "Gitdocs",
-  "Description": "System for exporting Git commits and linking to ClickUp tasks",
+  "model_name": "GitdocsManagement",
+  "Description": "System for managing Git commit exports and ClickUp task links.",
   "repositories": {
     "Description": "Git repositories being tracked",
     "schema": [
@@ -27,18 +27,18 @@
     "data": [
       {
         "RepositoryID": "R001",
-        "RepositoryName": "Repo3",
-        "Status": "Active"
+        "RepositoryName": "gitdocs",
+        "Status": "active"
       },
       {
         "RepositoryID": "R002",
-        "RepositoryName": "Repo2",
-        "Status": "Inactive"
+        "RepositoryName": "gitutils",
+        "Status": "inactive"
       }
     ]
   },
   "commits": {
-    "Description": "Commits made in the repositories",
+    "Description": "Commits from the repositories",
     "schema": [
       {
         "name": "CommitID",
@@ -59,32 +59,32 @@
         "Description": "Date of the commit"
       },
       {
-        "name": "Message",
+        "name": "CommitMessage",
         "datatype": "string",
         "type": "raw",
-        "Description": "Commit message"
+        "Description": "Message associated with the commit"
       },
       {
         "name": "ClickUpTaskLink",
         "datatype": "string",
         "type": "calculated",
-        "formula": "=\"https://app.clickup.com/t/\" & MID({{Message}}, FIND(\"CU-\", {{Message}}), 8)",
-        "Description": "Link to ClickUp task extracted from commit message"
+        "formula": "=\"https://app.clickup.com/t/\" & MID({{CommitMessage}}, FIND(\"CU-\", {{CommitMessage}}), 8)",
+        "Description": "Link to the associated ClickUp task"
       }
     ],
     "data": [
       {
         "CommitID": "C001",
         "RepositoryID": "R001",
-        "CommitDate": "2023-10-01T12:34:56",
-        "Message": "Fix bug CU-123456",
+        "CommitDate": "2023-10-01T10:00:00Z",
+        "CommitMessage": "Initial commit CU-123456",
         "ClickUpTaskLink": "https://app.clickup.com/t/CU-123456"
       },
       {
         "CommitID": "C002",
         "RepositoryID": "R001",
-        "CommitDate": "2023-10-02T14:20:00",
-        "Message": "Add feature CU-654321",
+        "CommitDate": "2023-10-02T11:30:00Z",
+        "CommitMessage": "Added new feature CU-654321",
         "ClickUpTaskLink": "https://app.clickup.com/t/CU-654321"
       }
     ]
@@ -99,37 +99,37 @@
         "Description": "Unique task identifier"
       },
       {
-        "name": "CommitID",
-        "datatype": "string",
-        "type": "lookup",
-        "formula": "=INDEX(commits!CommitID, MATCH({{TaskID}}, commits!ClickUpTaskLink, 0))",
-        "Description": "FK to commits.CommitID"
-      },
-      {
         "name": "TaskName",
         "datatype": "string",
         "type": "raw",
-        "Description": "Name of the ClickUp task"
+        "Description": "Name of the task"
       },
       {
         "name": "Status",
         "datatype": "string",
         "type": "raw",
         "Description": "Current status of the task"
+      },
+      {
+        "name": "TotalCommits",
+        "datatype": "integer",
+        "type": "aggregation",
+        "formula": "=COUNTIFS(commits!ClickUpTaskLink, \"https://app.clickup.com/t/\" & {{TaskID}})",
+        "Description": "Total number of commits linked to this task"
       }
     ],
     "data": [
       {
         "TaskID": "CU-123456",
-        "CommitID": "C001",
-        "TaskName": "Fix bug",
-        "Status": "Completed"
+        "TaskName": "Initial Setup",
+        "Status": "completed",
+        "TotalCommits": 1
       },
       {
         "TaskID": "CU-654321",
-        "CommitID": "C002",
-        "TaskName": "Add feature",
-        "Status": "In Progress"
+        "TaskName": "Feature Development",
+        "Status": "in progress",
+        "TotalCommits": 1
       }
     ]
   }
