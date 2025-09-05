@@ -1,21 +1,21 @@
 {
   "$schema": "https://example.com/cmcc-schema/v1",
-  "model_name": "GitdocsManagement",
-  "Description": "System for managing Git commit exports and ClickUp task links.",
+  "model_name": "GitCommitExporter",
+  "Description": "System for exporting Git commits and linking to ClickUp tasks",
   "repositories": {
-    "Description": "Git repositories being tracked",
+    "Description": "Git repositories to export commits from",
     "schema": [
       {
         "name": "RepositoryID",
         "datatype": "string",
         "type": "raw",
-        "Description": "Unique repository identifier"
+        "Description": "Unique identifier for the repository"
       },
       {
         "name": "RepositoryName",
         "datatype": "string",
         "type": "raw",
-        "Description": "Name of the repository"
+        "Description": "Name of the Git repository"
       },
       {
         "name": "Status",
@@ -27,7 +27,7 @@
     "data": [
       {
         "RepositoryID": "R001",
-        "RepositoryName": "gitdocs2",
+        "RepositoryName": "gitdocs",
         "Status": "active"
       },
       {
@@ -38,13 +38,13 @@
     ]
   },
   "commits": {
-    "Description": "Commits from the repositories",
+    "Description": "Commits made to the repositories",
     "schema": [
       {
         "name": "CommitID",
         "datatype": "string",
         "type": "raw",
-        "Description": "Unique commit identifier"
+        "Description": "Unique identifier for the commit"
       },
       {
         "name": "RepositoryID",
@@ -56,7 +56,7 @@
         "name": "CommitDate",
         "datatype": "datetime",
         "type": "raw",
-        "Description": "Date of the commit"
+        "Description": "Date and time of the commit"
       },
       {
         "name": "CommitMessage",
@@ -69,67 +69,23 @@
         "datatype": "string",
         "type": "calculated",
         "formula": "=\"https://app.clickup.com/t/\" & MID({{CommitMessage}}, FIND(\"CU-\", {{CommitMessage}}), 8)",
-        "Description": "Link to the associated ClickUp task"
+        "Description": "Link to the ClickUp task extracted from the commit message"
       }
     ],
     "data": [
       {
         "CommitID": "C001",
         "RepositoryID": "R001",
-        "CommitDate": "2023-10-01T10:00:00Z",
-        "CommitMessage": "Initial commit CU-123456",
-        "ClickUpTaskLink": "https://app.clickup.com/t/CU-123456"
+        "CommitDate": "2023-10-01T12:34:56Z",
+        "CommitMessage": "Fixed bug CU-12345",
+        "ClickUpTaskLink": "https://app.clickup.com/t/CU-12345"
       },
       {
         "CommitID": "C002",
         "RepositoryID": "R001",
-        "CommitDate": "2023-10-02T11:30:00Z",
-        "CommitMessage": "Added new feature CU-654321",
-        "ClickUpTaskLink": "https://app.clickup.com/t/CU-654321"
-      }
-    ]
-  },
-  "tasks": {
-    "Description": "ClickUp tasks linked to commits",
-    "schema": [
-      {
-        "name": "TaskID",
-        "datatype": "string",
-        "type": "raw",
-        "Description": "Unique task identifier"
-      },
-      {
-        "name": "TaskName",
-        "datatype": "string",
-        "type": "raw",
-        "Description": "Name of the task"
-      },
-      {
-        "name": "Status",
-        "datatype": "string",
-        "type": "raw",
-        "Description": "Current status of the task"
-      },
-      {
-        "name": "TotalCommits",
-        "datatype": "integer",
-        "type": "aggregation",
-        "formula": "=COUNTIFS(commits!ClickUpTaskLink, \"https://app.clickup.com/t/\" & {{TaskID}})",
-        "Description": "Total number of commits linked to this task"
-      }
-    ],
-    "data": [
-      {
-        "TaskID": "CU-123456",
-        "TaskName": "Initial Setup",
-        "Status": "completed",
-        "TotalCommits": 1
-      },
-      {
-        "TaskID": "CU-654321",
-        "TaskName": "Feature Development",
-        "Status": "in progress",
-        "TotalCommits": 1
+        "CommitDate": "2023-10-02T14:22:10Z",
+        "CommitMessage": "Added feature CU-67890",
+        "ClickUpTaskLink": "https://app.clickup.com/t/CU-67890"
       }
     ]
   }
